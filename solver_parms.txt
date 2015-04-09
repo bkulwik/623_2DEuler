@@ -1,0 +1,4 @@
+% CFL Number
+0.5
+% Max simulation time (s)
+10
