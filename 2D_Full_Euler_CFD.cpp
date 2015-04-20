@@ -32,7 +32,7 @@ void compute_limited_flux(std::vector<TDstate>& flux, const TDstate& limiter_val
 void compute_center_flux(TDstate &center_flux, TDstate center_state, int direction, double gamma);
 
 // Reconstructs the solution from t to t+dt/2
-void compute_halfway_state(TDstate& Uph, const TDstate& current_U const std::vector<double>& F, const std::vector<double>& G, double dt, double delta_x, double delta_y);
+void compute_halfway_state(unsigned int cellnum, TDstate& Uph, const TDstate& current_U, const std::vector<double>& F, const std::vector<double>& G, double dt, double dx, double dy);
 
 int main() {
 
@@ -64,8 +64,6 @@ int main() {
 // Read the initial condition file from MATLAB with [rho rho*u rho*v e] defined for each cell
 	read_grid(input_filename, grid, gamma);
 	
-	std::vector<TDstate> Uph (grid.size());	
-
 	min_delta_x = gridmin(grid, 'x');
 	min_delta_y = gridmin(grid, 'y');
 	min_delta = std::min(min_delta_x,min_delta_y);
@@ -108,11 +106,14 @@ double t = 0;
 	}
 
 // Go through each cell, calculate fluxes, update to new piecewise linear state
+	std::vector<TDstate> Uph (grid.size());	
+
 	for (unsigned int cellnum = 0; cellnum < grid.size(); ++cellnum) { // For each cell
 		if (!isedge(grid,cellnum)) {
             FluxSolver(grid, delta_x, delta_y, state_minus, state_plus, gamma, slope_plus, slope_minus, limiter_number, cellnum, limiter_value, F, G, min_delta, CFL, max_wavespeed);
 		// Now, use the fluxes calculated above to assign a new state, Uph
-		compute_halfway_state(Uph, F, G, dt, delta_x, delta_y);
+		compute_halfway_state(cellnum, Uph, grid[cellnum].state, F, G, dt, delta_x, delta_y);
+									
 		} // end of if (!isedge(grid,cell)) 	
 
 
@@ -286,8 +287,9 @@ void compute_center_flux(TDstate &center_flux, TDstate center_state, int directi
 	}
 }
 
-void compute_halfway_state(TDstate& Uph, const TDstate& current_U const std::vector<double>& F, const std::vector<double>& G, double dt, double delta_x, double delta_y) {
-	Uph.rho = 	
-
-
+void compute_halfway_state(unsigned int& cellnum, TDstate& Uph, const TDstate& current_U, const std::vector<double>& F, const std::vector<double>& G, double dt, double dx, double dy) {
+	Uph[cellnum].rho = (current_U.rho - dt/(2*dx)*(F[1].rho-F[0].rho) - dt/(2*dy)*(G[1].rho-G[0].rho));
+	Uph[cellnum].rhou = (current_U.rhou - dt/(2*dx)*(F[1].rhou-F[0].rhou) - dt/(2*dy)*(G[1].rhou-G[0].rhou));
+	Uph[cellnum].rhov = (current_U.rhov - dt/(2*dx)*(F[1].rhov-F[0].rhov) - dt/(2*dy)*(G[1].rhov-G[0].rhov));
+	Uph[cellnum].E = (current_U.E - dt/(2*dx)*(F[1].E-F[0].E) - dt/(2*dy)*(G[1].E-G[0].E));
 }
