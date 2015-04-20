@@ -7,15 +7,13 @@
 #include "file_header.h"
 #include "helper_functions.h"
 
-void FluxSolver(const std::vector<cell>& grid, double& delta_x, double& delta_y, TDstate& state_minus, TDstate& state_plus, double gamma, TDstate& slope_plus, TDstate& slope_minus, int limiter_number, int cellnum, TDstate& limiter_value, std::vector<TDstate>& F, std::vector<TDstate>& G, double min_delta, double CFL, double& max_wavespeed);
-
 // Define helper functions!
-bool isedge(const std::vector<cell>& grid, int cellnum);
+bool isedge(std::vector<cell> grid, int cell);
 
 // void compute_flux(std::vector<double> &fluxph, std::vector<double> &fluxmh, std::vector<double> slope, TDstate state, double delta, std::string direction, double gamma);
 
 // This is not math-y, just a formality of grabbing the left/right (state_minus) or bottom/top (state_plus) states from the grid input.
-void assign_edge_state(TDstate &state_minus, TDstate &state_plus, const std::vector<cell>& grid, int cellnum, int direction);
+void assign_edge_state(TDstate &state_minus, TDstate &state_plus, std::vector<cell> grid, int cellnum, int direction);
 
 // Computes the "geometric" slope vector for all conserved quantities between the bottom/left and top/right cells
 void compute_slope(TDstate &slope_minus, TDstate &slope_plus, std::vector<cell> grid, int cellnum, int direction, TDstate state_minus, TDstate state_plus, double delta_x, double delta_y);
@@ -26,13 +24,9 @@ void compute_limiter(TDstate &limiter_value, TDstate slope_minus, TDstate slope_
 // Computes the harmonic limiter given r, the ratio of minus to plus slopes
 void harmonic_limiter(TDstate &limiter_value, TDstate slope_minus, TDstate slope_plus);
 
-void compute_limited_flux(std::vector<TDstate>& flux, const TDstate& limiter_value, const TDstate& center_state, const TDstate& slope_plus, int direction, double gamma);
+void compute_limited_flux(std::vector<TDstate> &flux, TDstate limiter_value, double min_delta, double CFL, TDstate center_state, TDstate slope_plus, int direction, double gamma);
 
-// Computes the value of flux in the center cell, not along the edges but in the cell
 void compute_center_flux(TDstate &center_flux, TDstate center_state, int direction, double gamma);
-
-// Reconstructs the solution from t to t+dt/2
-void compute_halfway_state(TDstate& Uph, const TDstate& current_U const std::vector<double>& F, const std::vector<double>& G, double dt, double delta_x, double delta_y);
 
 int main() {
 
@@ -41,7 +35,7 @@ int main() {
 	std::string input_filename = "5x5square2.bkcfd";
 	std::vector<double> parameters;
 	std::vector<double> Fiph, Fimh, Giph, Gimh;
-	double CFL, tmax, dt, delta_x, delta_y, min_delta_x, min_delta_y, min_delta;
+	double CFL, tmax, delta_x, delta_y, min_delta_x, min_delta_y, min_delta;
 	TDstate state_minus, state_plus, slope_minus, slope_plus, limiter_value;
 	std::vector<TDstate> F (2);
 	std::vector<TDstate> G (2);
@@ -56,8 +50,8 @@ int main() {
 
 	// Read parameters from input file defined by filename string
 	parameters = read_parameters(parameter_filename);
-	CFL = parameters.at(0);	
-	tmax = parameters.at(1);
+//	CFL = parameters.at(0);	
+//	tmax = parameters.at(1);
 	
 
 // Read initial file defined from Matlab with cell edges and connections
@@ -94,26 +88,44 @@ int main() {
 */
 
 // Start calculation in for loop going to final time
-double t = 0;
+
 //	for (double t = 0, t <= tmax; t++) 
 	double max_wavespeed = 0; 
-	
-	if (t == 0) { // Compute initial dt for first timestep
-		for (unsigned int cellnum = 0; cellnum < grid.size(); ++cellnum) { // For each cell
-			if (!isedge(grid,cellnum)) {
-            FluxSolver(grid, delta_x, delta_y, state_minus, state_plus, gamma, slope_plus, slope_minus, limiter_number, cellnum, limiter_value, F, G, min_delta, CFL, max_wavespeed);
-			}
-		}
-		dt = CFL*min_delta/max_wavespeed;
-	}
 
 // Go through each cell, calculate fluxes, update to new piecewise linear state
 	for (unsigned int cellnum = 0; cellnum < grid.size(); ++cellnum) { // For each cell
 		if (!isedge(grid,cellnum)) {
-            FluxSolver(grid, delta_x, delta_y, state_minus, state_plus, gamma, slope_plus, slope_minus, limiter_number, cellnum, limiter_value, F, G, min_delta, CFL, max_wavespeed);
-		// Now, use the fluxes calculated above to assign a new state, Uph
-		compute_halfway_state(Uph, F, G, dt, delta_x, delta_y);
+			delta_x = (vectormax(grid[cellnum].cornerlocs_x) - vectormin(grid[cellnum].cornerlocs_x));
+			delta_y = (vectormax(grid[cellnum].cornerlocs_y) - vectormin(grid[cellnum].cornerlocs_y));
+
+			// Calculate the limited flux of each conserved quantity for initial t -> t+1/2 update
+			for (int direction = 0; direction < 2; ++direction) { // For the left/right direction and up/down direction
+				// Assign the bottom/left and the top/right states for each cell
+				assign_edge_state(state_minus, state_plus, grid, cellnum, direction);	
+								
+
+				// Calculate the flux of each conserved variable, in each direction, on each face, of that cell.
+				// Flux needs to be calculated by first finding the limiter (direction-dependent), then using that limiter to calculate the directional flux, then using the two directional fluxes to update from u_t to u_t+1/2	
+				
+				compute_slope(slope_minus, slope_plus, grid, cellnum, direction, state_minus, state_plus, delta_x, delta_y);
+				compute_limiter(limiter_value, slope_minus, slope_plus, limiter_number);
+
+				if (direction == 0) { // Compute F, x-fluxes
+					compute_limited_flux(F, limiter_value, min_delta, CFL, grid[cellnum].state, slope_plus, direction, gamma);
+//					std::cout << "rho limiter x: " << limiter_value.rho << '\n';
+				} else { // Compute G, y-fluxes
+//					std::cout << "rho limiter y: " << limiter_value.rho << '\n';
+					compute_limited_flux(G, limiter_value, min_delta, CFL, grid[cellnum].state, slope_plus, direction, gamma);
+				}
+			} // end of for (int direction = 0; direction < 2; ++direction)
+//			std::cout << "F flux: " << F[0].rho << " " << F[1].rho << ", G flux: " << G[0].rho << " " << G[1].rho << '\n';	
+			fluxmax(max_wavespeed, F, G, grid[cellnum].state);
 		} // end of if (!isedge(grid,cell)) 	
+
+
+		// Compute the max 
+		// Now, use the fluxes calculated above to assign a new state, Uph
+		compute_halfway_state(Uph, F, G, CFL);
 
 
 // -----------------------------
@@ -121,7 +133,7 @@ double t = 0;
 
 //
 // Go through each edge, calculate flux, save
-//		for (int edge = 1, edge <= numedges, ++edge)
+//		for (int edge = 1, edge <= numedges, ++edge) 
 //
 // Solve riemann problem on edge for euler flux
 		ODstate left;
@@ -152,38 +164,10 @@ return 0;
 }
 
 
+
 // This is the land of the helper functions! ---------------------------------------------------
 
-void FluxSolver(const std::vector<cell>& grid, double& delta_x, double& delta_y, TDstate& state_minus, TDstate& state_plus, double gamma, TDstate& slope_plus, TDstate& slope_minus, int limiter_number, int cellnum, TDstate& limiter_value, std::vector<TDstate>& F, std::vector<TDstate>& G, double min_delta, double CFL, double& max_wavespeed) {
-
-	delta_x = (vectormax(grid[cellnum].cornerlocs_x) - vectormin(grid[cellnum].cornerlocs_x));
-	delta_y = (vectormax(grid[cellnum].cornerlocs_y) - vectormin(grid[cellnum].cornerlocs_y));
-
-    // Calculate the limited flux of each conserved quantity for initial t -> t+1/2 update
-	for (int direction = 0; direction < 2; ++direction) { // For the left/right direction and up/down direction
-		// Assign the bottom/left and the top/right states for each cell
-		assign_edge_state(state_minus, state_plus, grid, cellnum, direction);	
-						
-		// Calculate the flux of each conserved variable, in each direction, on each face, of that cell.
-		// Flux needs to be calculated by first finding the limiter (direction-dependent), then using that limiter to calculate the directional flux, then using the two directional fluxes to update from u_t to u_t+1/2	
-			
-		compute_slope(slope_minus, slope_plus, grid, cellnum, direction, state_minus, state_plus, delta_x, delta_y);
-		compute_limiter(limiter_value, slope_minus, slope_plus, limiter_number);
-
-		if (direction == 0) { // Compute F, x-fluxes
-			compute_limited_flux(F, limiter_value, grid[cellnum].state, slope_plus, direction, gamma);
-//			std::cout << "rho limiter x: " << limiter_value.rho << '\n';
-		} else { // Compute G, y-fluxes
-//			std::cout << "rho limiter y: " << limiter_value.rho << '\n';
-			compute_limited_flux(G, limiter_value, grid[cellnum].state, slope_plus, direction, gamma);
-		}
-	} // end of for (int direction = 0; direction < 2; ++direction)
-//	std::cout << "F flux: " << F[0].rho << " " << F[1].rho << ", G flux: " << G[0].rho << " " << G[1].rho << '\n';	
-	max_wavespeed_calculator_riemann(max_wavespeed, grid[cellnum].state, gamma);
-}
-
-
-bool isedge(const std::vector<cell>& grid, int cellnum) {
+bool isedge(std::vector<cell> grid, int cellnum) {
 	int special_value = -1;
 	if ((grid[cellnum].adjacent_cells[0] == special_value) || (grid[cellnum].adjacent_cells[1] == special_value) || (grid[cellnum].adjacent_cells[2] == special_value)  || (grid[cellnum].adjacent_cells[3] == special_value)) {
 		return(1);
@@ -194,7 +178,7 @@ bool isedge(const std::vector<cell>& grid, int cellnum) {
 }
 
 
-void assign_edge_state(TDstate &state_minus, TDstate &state_plus, const std::vector<cell>& grid, int cellnum, int direction) {
+void assign_edge_state(TDstate &state_minus, TDstate &state_plus, std::vector<cell> grid, int cellnum, int direction) {
 	int adjacent_bl, adjacent_tr;
 
 	adjacent_bl = (grid[cellnum].adjacent_cells[direction]);
@@ -248,7 +232,7 @@ void harmonic_limiter(TDstate &limiter_value, TDstate slope_minus, TDstate slope
 }
 
 
-void compute_limited_flux(std::vector<TDstate>& flux, const TDstate& limiter_value, const TDstate& center_state, const TDstate& slope_plus, int direction, double gamma) {
+void compute_limited_flux(std::vector<TDstate> &flux, TDstate limiter_value, double min_delta, double CFL, TDstate center_state, TDstate slope_plus, int direction, double gamma) {
 // flux is for the (i-1/2 and i+1/2) faces [or (j-1/2 and j+1/2) faces]
 	TDstate center_flux; //computed in line below
 	compute_center_flux(center_flux, center_state, direction, gamma);
@@ -284,10 +268,4 @@ void compute_center_flux(TDstate &center_flux, TDstate center_state, int directi
 		center_flux.rhov = center_state.rho*pow(V,2) + pressure;
 		center_flux.E = V*(center_state.E + pressure);
 	}
-}
-
-void compute_halfway_state(TDstate& Uph, const TDstate& current_U const std::vector<double>& F, const std::vector<double>& G, double dt, double delta_x, double delta_y) {
-	Uph.rho = 	
-
-
 }
