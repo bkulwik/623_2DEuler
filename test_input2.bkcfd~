@@ -1,0 +1,52 @@
+% This is a test input file for my 2D Euler Equation CFD Solver
+% We ignore all lines that have double slashes to start
+% First we define the cell number, then its left cell, right cell, top cell and bottom cell
+% If there are no cells adjacent to it, then leave as "-"
+%
+% Alternately, we can just define the node number and location, then define cells from these nodes
+% Yes, I like that last idea. Lets do that. 
+%
+% Start the Node Location Definitions
+1 0.0 0.0
+2 1.0 0.0
+3 2.0 0.0
+4 3.0 0.0
+5 0.0 1.0
+6 1.0 1.0
+7 2.0 1.0
+8 3.0 1.0
+9 0.0 2.0
+10 1.0 2.0
+11 2.0 2.0
+12 3.0 2.0
+13 0.0 3.0
+14 1.0 3.0
+15 2.0 3.0
+16 3.0 3.0
+
+
+% Start the cell definitions
+% Must be bottom left, bottom right, top left, top right
+1 1 2 6 5
+2 2 3 7 6
+3 3 4 8 7
+4 5 6 9 10
+5 6 7 11 10
+6 7 8 12 11
+7 9 10 14 13
+8 10 11 15 14
+9 11 12 16 15
+
+% Start the initial conditions
+% cell_num rho rho*u rho*v E
+1 1 0 0 5
+2 1 0 0 5
+3 1 0 0 5
+4 1 0 0 5
+5 1 0 0 5
+6 1 0 0 5
+7 1 0 0 5
+8 1 0 0 5
+9 1 0 0 5
+
+% end of input file

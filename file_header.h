@@ -27,6 +27,7 @@ struct cell {
 	std::vector<double> cornerlocs_x;
 	std::vector<double> cornerlocs_y;
 	std::vector<int> adjacent_cells;
+	int edge_type;
 	TDstate state;
 };
 
@@ -38,10 +39,10 @@ std::vector<double> read_parameters(std::string filename);
 void read_grid(std::string input_filename, std::vector<cell> &grid, double gamma);
 
 // This is the 1D exact riemann solver
-ODstate Exact_Riemann_Solver(ODstate left, ODstate right, double thresh, double gamma);
+ODstate Exact_Riemann_Solver(ODstate left, ODstate right, double left_parallelvel, double right_parallelvel, double thresh, double gamma, bool debug);
 
-// Given a cell number, this computes the cells adjacent to it
-//cell_neighbors compute_neighbors(int cell, std::vector<std::vector<int>> cell_matrix, std::vector<std::vector<double>> node_matrix);
+//This is used to write solver outputs to a .txt file to be read into and plotted by MATLAB
+void write_to_file(const std::vector<cell>& grid, const std::vector<TDstate>& U, std::string& filename);
 
 #endif
 //==============================================================

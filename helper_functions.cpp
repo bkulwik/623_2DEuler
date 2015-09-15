@@ -7,13 +7,13 @@
 double compute_pressure_2D(TDstate state, double gamma) { 
 // This computes the pressure for a 2D state
 	double vel_mag = sqrt((pow(state.rhou,2) + pow(state.rhov,2))/(pow(state.rho,2)));
-	double pressure = (state.E + state.rho*pow(vel_mag,2)/2)*(gamma-1);
+	double pressure = (state.E - state.rho*pow(vel_mag,2)/2)*(gamma-1);
 
 	return(pressure);
 }
 
 double compute_pressure_1D(ODstate state, double gamma) {
-	double pressure = (state.E + pow(state.rhou,2)/(2*state.rho))*(gamma-1);
+	double pressure = (state.E - pow(state.rhou,2)/(2*state.rho))*(gamma-1);
 	return(pressure);
 }
 
@@ -43,7 +43,8 @@ double vectormin(std::vector<double> locations) {
 	return(min_value);
 }
 
-double gridmin(std::vector<cell> grid, char direction) {
+/*
+double gridmin(const std::vector<cell>& grid, char direction) {
 	double delta, min_delta;
 	if (direction == 'x') {
 		min_delta = std::abs(grid[0].cornerlocs_x[0] - grid[0].cornerlocs_x[1]);
@@ -72,6 +73,18 @@ double gridmin(std::vector<cell> grid, char direction) {
 	}
 	return(min_delta);
 }
+*/
+
+std::vector<int> find_interior_cells(const std::vector<cell>& grid) {
+	std::vector<int> interior_cells;	
+	for (unsigned int cellnum = 0; cellnum < grid.size(); ++cellnum) {
+		if (grid[cellnum].edge_type == 0) {
+			interior_cells.push_back(grid[cellnum].cellnumber);
+		}
+	}
+	return(interior_cells);
+}
+
 
 void max_wavespeed_calculator(double &max_wavespeed, std::vector<TDstate> &F, std::vector<TDstate> &G, TDstate state) {
 	assert(F.size() == 2);
@@ -140,4 +153,22 @@ void max_wavespeed_calculator_riemann(double& max_wavespeed, TDstate state, doub
 		max_wavespeed = max_local_wavespeed;
 	}
 }
-	
+
+void outputU(std::vector<TDstate>& U) {
+	int i = -1;
+	std::cout << '\n';
+	for(auto input:U) {
+		i++;
+		std::cout << "Cell " << i << ": " << input.rho << " " << input.rhou << " " << input.rhov << " " << input.E << '\n';
+	}
+	std::cout << '\n';
+}
+
+void outputODstate(ODstate& state) {
+	std::cout << "ODstate = " << state.rho << " " << state.rhou << " " << state.E << '\n';
+}
+
+void outputTDstate(TDstate& state) {
+	std::cout << "TDstate = " << state.rho << " " << state.rhou << " " << state.rhov << " " << state.E << '\n';
+}
+

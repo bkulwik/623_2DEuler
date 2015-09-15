@@ -1,0 +1,927 @@
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+
+Initial wavespeeds and dt computed, moving on to flux calculation 
+ 
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 11 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 11 half-state: 1 0 0 200000
+Cell 11 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 12 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 12 half-state: 1 0 0 200000
+Cell 12 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 13 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 13 half-state: 1 0 0 200000
+Cell 13 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 14 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 14 half-state: 1 0 0 200000
+Cell 14 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 15 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 15 half-state: 1 0 0 200000
+Cell 15 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 16 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 16 half-state: 1 0 0 200000
+Cell 16 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 17 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 17 half-state: 1 0 0 200000
+Cell 17 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 18 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 18 half-state: 1 0 0 200000
+Cell 18 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 21 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 21 half-state: 1 0 0 200000
+Cell 21 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 22 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 22 half-state: 1 0 0 200000
+Cell 22 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 23 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 23 half-state: 1 0 0 200000
+Cell 23 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 24 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 24 half-state: 1 0 0 200000
+Cell 24 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 25 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 25 half-state: 1 0 0 200000
+Cell 25 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 26 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 26 half-state: 1 0 0 200000
+Cell 26 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 27 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 27 half-state: 1 0 0 200000
+Cell 27 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 28 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 28 half-state: 1 0 0 200000
+Cell 28 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 31 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 31 half-state: 1 0 0 200000
+Cell 31 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 32 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 32 half-state: 1 0 0 200000
+Cell 32 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 33 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 33 half-state: 1 0 0 200000
+Cell 33 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 34 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 34 half-state: 1 0 0 200000
+Cell 34 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 35 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 35 half-state: 1 0 0 200000
+Cell 35 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 36 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 36 half-state: 1 0 0 200000
+Cell 36 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 37 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 37 half-state: 1 0 0 200000
+Cell 37 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 38 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 38 half-state: 1 0 0 200000
+Cell 38 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 41 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 41 half-state: 1 0 0 200000
+Cell 41 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 42 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 42 half-state: 1 0 0 200000
+Cell 42 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 43 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 43 half-state: 1 0 0 200000
+Cell 43 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 44 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 44 half-state: 1 0 0 200000
+Cell 44 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 45 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 45 half-state: 1 0 0 200000
+Cell 45 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 46 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 46 half-state: 1 0 0 200000
+Cell 46 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 47 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 47 half-state: 1 0 0 200000
+Cell 47 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 48 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 48 half-state: 1 0 0 200000
+Cell 48 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 51 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 51 half-state: 1 0 0 200000
+Cell 51 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 52 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 52 half-state: 1 0 0 200000
+Cell 52 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 53 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 53 half-state: 1 0 0 200000
+Cell 53 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 54 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 54 half-state: 1 0 0 200000
+Cell 54 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 55 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 55 half-state: 1 0 0 200000
+Cell 55 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 56 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 56 half-state: 1 0 0 200000
+Cell 56 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 57 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 57 half-state: 1 0 0 200000
+Cell 57 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 58 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 58 half-state: 1 0 0 200000
+Cell 58 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 61 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 61 half-state: 1 0 0 200000
+Cell 61 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 62 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 62 half-state: 1 0 0 200000
+Cell 62 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 63 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 63 half-state: 1 0 0 200000
+Cell 63 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 64 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 64 half-state: 1 0 0 200000
+Cell 64 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 65 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 65 half-state: 1 0 0 200000
+Cell 65 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 66 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 66 half-state: 1 0 0 200000
+Cell 66 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 67 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 67 half-state: 1 0 0 200000
+Cell 67 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 68 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 68 half-state: 1 0 0 200000
+Cell 68 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 71 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 71 half-state: 1 0 0 200000
+Cell 71 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 72 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 72 half-state: 1 0 0 200000
+Cell 72 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 73 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 73 half-state: 1 0 0 200000
+Cell 73 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 74 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 74 half-state: 1 0 0 200000
+Cell 74 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 75 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 75 half-state: 1 0 0 200000
+Cell 75 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 76 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 76 half-state: 1 0 0 200000
+Cell 76 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 77 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 0 0 80000 0
+G[1] = 0 0 80000 0
+Cell 77 half-state: 1 0 0 200000
+Cell 77 Full-Updated State : 1 0 0 200000
+
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Slope Minus: 0 0 0 0
+Slope Plus: 0 0 0 0
+Limiter Num: 2 Limiter Value: 0 0 0 0
+Cell 78 Original State: 1 0 0 200000
+F[0] = 0 80000 0 0
+F[1] = 0 80000 0 0
+G[0] = 

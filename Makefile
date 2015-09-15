@@ -14,8 +14,8 @@ release: all
 debug: FLAGS += -g
 debug: all
 
-all:2D_Full_Euler_CFD.o read_parameters.o read_grid.o Exact_Riemann_Solver.o compute_neighbors.o helper_functions.o
-	g++ $(FLAGS) 2D_Full_Euler_CFD.o read_parameters.o read_grid.o Exact_Riemann_Solver.o compute_neighbors.o helper_functions.o -o 2D_Full_Euler_CFD
+all:2D_Full_Euler_CFD.o read_parameters.o read_grid.o Exact_Riemann_Solver.o compute_neighbors.o helper_functions.o write_to_file.o
+	g++ $(FLAGS) 2D_Full_Euler_CFD.o read_parameters.o read_grid.o Exact_Riemann_Solver.o compute_neighbors.o helper_functions.o write_to_file.o -o 2D_Full_Euler_CFD
 
 # This is an example from one of my projects. Replace the header files with your
 # header files and the cpp files with your cpp files 
@@ -31,6 +31,8 @@ compute_neighbors.o: compute_neighbors.cpp file_header.h helper_functions.h
 	g++ $(FLAGS) -c compute_neighbors.cpp
 helper_functions.o: helper_functions.cpp file_header.h helper_functions.h
 	g++ $(FLAGS) -c helper_functions.cpp
+write_to_file.o: write_to_file.cpp file_header.h helper_functions.h
+	g++ $(FLAGS) -c write_to_file.cpp
 
 # ------------------ Test cases! ----------------------------
 test: test1

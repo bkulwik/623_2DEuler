@@ -4,21 +4,32 @@
 #include <vector>
 #include <cmath>
 #include <cassert>
+#include <algorithm>
 #include "file_header.h"
 #include "helper_functions.h"
 
-void FluxSolver(const std::vector<cell>& grid, double& delta_x, double& delta_y, TDstate& state_minus, TDstate& state_plus, double gamma, TDstate& slope_plus, TDstate& slope_minus, int limiter_number, int cellnum, TDstate& limiter_value, std::vector<TDstate>& F, std::vector<TDstate>& G, double min_delta, double CFL, double& max_wavespeed);
+/*
+CODE NOTES
+
+- The inlet should be specified as a zero-gradient boundary condition. However, when this happens, the code explodes, with density becoming zero/negative by about timestep 74 (in the case I ran).
+
+-
+
+
+*/
+
+void LimitedFluxSolver(const std::vector<cell>& grid, double& delta_x, double& delta_y, TDstate& state_minus, TDstate& state_plus, double gamma, TDstate& slope_plus, TDstate& slope_minus, int limiter_number, int cellposition, TDstate& limiter_value, std::vector<TDstate>& F, std::vector<TDstate>& G, double CFL, double& max_wavespeed, std::vector<TDstate>& U, bool debug, std::ofstream& textout);
 
 // Define helper functions!
-bool isedge(const std::vector<cell>& grid, int cellnum);
+bool isedge(const std::vector<cell>& grid, int cellposition);
 
 // void compute_flux(std::vector<double> &fluxph, std::vector<double> &fluxmh, std::vector<double> slope, TDstate state, double delta, std::string direction, double gamma);
 
 // This is not math-y, just a formality of grabbing the left/right (state_minus) or bottom/top (state_plus) states from the grid input.
-void assign_edge_state(TDstate &state_minus, TDstate &state_plus, const std::vector<cell>& grid, int cellnum, int direction);
+void assign_edge_state(TDstate &state_minus, TDstate &state_plus, const std::vector<TDstate>& U, const std::vector<cell>& grid, int cellposition, int direction);
 
-// Computes the "geometric" slope vector for all conserved quantities between the bottom/left and top/right cells
-void compute_slope(TDstate &slope_minus, TDstate &slope_plus, std::vector<cell> grid, int cellnum, int direction, TDstate state_minus, TDstate state_plus, double delta_x, double delta_y);
+// Computes the "geometric" slope vector for all conserved quantities between the bottom/left and top/right cells. Used for second order accuracy calculations.
+void compute_slope(TDstate &slope_minus, TDstate &slope_plus, int direction, TDstate state_minus, TDstate state_plus, double delta_x, double delta_y, TDstate& U_center);
 
 // This computes the double-value "limiter value" based on the bottom/left and top/right states for a given cell. The limiter value is then used to calculate the flux
 void compute_limiter(TDstate &limiter_value, TDstate slope_minus, TDstate slope_plus, int limiter_number);
@@ -26,216 +37,458 @@ void compute_limiter(TDstate &limiter_value, TDstate slope_minus, TDstate slope_
 // Computes the harmonic limiter given r, the ratio of minus to plus slopes
 void harmonic_limiter(TDstate &limiter_value, TDstate slope_minus, TDstate slope_plus);
 
-void compute_limited_flux(std::vector<TDstate>& flux, const TDstate& limiter_value, const TDstate& center_state, const TDstate& slope_plus, int direction, double gamma);
+void compute_limited_flux(std::vector<TDstate>& flux, const TDstate& limiter_value, const TDstate& center_state, const TDstate& slope_plus, const TDstate& slope_minus, int direction, double gamma, double CFL);
 
 // Computes the value of flux in the center cell, not along the edges but in the cell
-void compute_center_flux(TDstate &center_flux, TDstate center_state, int direction, double gamma);
+void compute_cell_flux(TDstate &flux, const TDstate& state, int direction, double gamma);
 
 // Reconstructs the solution from t to t+dt/2
-void compute_halfway_state(unsigned int cellnum, TDstate& Uph, const TDstate& current_U, const std::vector<double>& F, const std::vector<double>& G, double dt, double dx, double dy);
+void compute_halfway_state(TDstate& Uph, const TDstate& current_U, const std::vector<TDstate>& F, const std::vector<TDstate>& G, double dt, double dx, double dy);
+
+// Computes the min dx or dy in a grid
+double gridmin(const std::vector<cell>& grid, char direction);
+
+// Find the position in the grid vector of cellnumber_desired
+double find_cellposition(const std::vector<cell>& grid, int& cellnumber_desired);
+
+// Outputs the grid to the file "grid_file.txt"
+void output_grid(const std::vector<cell>& grid);
 
 int main() {
 
 // Define Variables
 	std::string parameter_filename = "solver_parms.txt";
-	std::string input_filename = "5x5square2.bkcfd";
+	std::string input_filename = "8x8square.bkcfd";
+	std::string output_filename = "8x8square_output.txt";
+	bool debug = true;
+
 	std::vector<double> parameters;
 	std::vector<double> Fiph, Fimh, Giph, Gimh;
-	double CFL, tmax, dt, delta_x, delta_y, min_delta_x, min_delta_y, min_delta;
+	double CFL, dt, delta_x, delta_y, min_delta_x, min_delta_y, min_delta;
 	TDstate state_minus, state_plus, slope_minus, slope_plus, limiter_value;
+	TDstate state_leftcell, state_rightcell, state_bottomcell, state_topcell;
 	std::vector<TDstate> F (2);
 	std::vector<TDstate> G (2);
 
-//	double thresh = 0.00001; // 1E-5 tolerance for riemann solver - velocity
+	double thresh = pow(10,-6); // 1E-8 tolerance for riemann solver - velocity
 	double gamma = 1.4;
 
-// 1 = harmonic mean for slopes, 2 = ...
-	int limiter_number = 1; 
+	bool save_timesteps = true;	
+
+// 1 = harmonic mean for slopes, 2 = first order upwind (no limiter), 3 = lax-wendroff ...
+// 2 is the only one that currently works - need to fix limiters; by timestep 2 we have E < 0 assert error (1) or rho < 0 assert error (3)
+	int limiter_number = 2; 
 
 	std::vector<cell> grid;
+
+	std::ofstream textout;
+	textout.open("temp.txt");
+
 
 	// Read parameters from input file defined by filename string
 	parameters = read_parameters(parameter_filename);
 	CFL = parameters.at(0);	
-	tmax = parameters.at(1);
+	int num_timesteps = parameters.at(1);
 	
 
 // Read initial file defined from Matlab with cell edges and connections
-// Read the initial condition file from MATLAB with [rho rho*u rho*v e] defined for each cell
+// Read the initial condition file from MATLAB with [rho rho*u rho*v E] defined for each cell
 	read_grid(input_filename, grid, gamma);
 	
+	std::vector<int> interior_cells = find_interior_cells(grid);
+
+// Compute the min grid spacing for use in timestep calculations
 	min_delta_x = gridmin(grid, 'x');
 	min_delta_y = gridmin(grid, 'y');
 	min_delta = std::min(min_delta_x,min_delta_y);
-	
 
-/*		std::cout << "printing now..." << '\n';
-	for(auto input: grid) {
-		std::cout << input.cellnumber << '\n';
-		std::cout << input.cornerlocs_x[0] << ' ';
-		std::cout << input.cornerlocs_x[1] << ' ';
-		std::cout << input.cornerlocs_x[2] << ' ';
-		std::cout << input.cornerlocs_x[3] << '\n';
-		std::cout << input.cornerlocs_y[0] << ' ';
-		std::cout << input.cornerlocs_y[1] << ' ';
-		std::cout << input.cornerlocs_y[2] << ' ';
-		std::cout << input.cornerlocs_y[3] << '\n';
-		std::cout << input.adjacent_cells[0] << ' ';
-		std::cout << input.adjacent_cells[1] << ' ';
-		std::cout << input.adjacent_cells[2] << ' ';
-		std::cout << input.adjacent_cells[3] << '\n';
-		std::cout << input.state.rho << ' ';
-		std::cout << input.state.rhou << ' ';
-		std::cout << input.state.rhov << ' ';
-		std::cout << input.state.E << '\n' << '\n';
-	} 
-*/
+// Option to output grid to "grid_file.txt"
+//	output_grid(grid);
 
-// Start calculation in for loop going to final time
-double t = 0;
-//	for (double t = 0, t <= tmax; t++) 
-	double max_wavespeed = 0; 
-	
-	if (t == 0) { // Compute initial dt for first timestep
-		for (unsigned int cellnum = 0; cellnum < grid.size(); ++cellnum) { // For each cell
-			if (!isedge(grid,cellnum)) {
-            FluxSolver(grid, delta_x, delta_y, state_minus, state_plus, gamma, slope_plus, slope_minus, limiter_number, cellnum, limiter_value, F, G, min_delta, CFL, max_wavespeed);
-			}
-		}
-		dt = CFL*min_delta/max_wavespeed;
+// Initialize solution U as vector of TD states with initial state at all points on grid
+	std::vector<TDstate> U;
+	for (unsigned int cellposition = 0; cellposition < grid.size(); ++cellposition) {
+		U.push_back(grid[cellposition].state);
 	}
 
+
+// Based on initial conditions, compute fastest wavespeed between any two cells in order to compute dt
+// Using LimitedFLuxSolver is overkill here, but it also computes the max wavespeed in addition to all other calculations it is doing. Therefore it is used here for simplicity and to not necessitate rewriting code.
+
+	double max_wavespeed = 0; 	
+	for (unsigned int cellposition = 0; cellposition < grid.size(); ++cellposition) { // For each cell
+		if (grid[cellposition].edge_type == 0) { // Cell is not a ghost cell/edge cell
+         LimitedFluxSolver(grid, delta_x, delta_y, state_minus, state_plus, gamma, slope_plus, slope_minus, limiter_number, cellposition, limiter_value, F, G, CFL, max_wavespeed, U, debug, textout);
+		}
+	}
+
+	dt = CFL*min_delta/max_wavespeed;
+	
+	if (debug) {
+		textout << "\nInitial wavespeeds and dt computed, moving on to flux calculation \n \n";
+	}
+
+// Start calculation in for loop going to final time
+	TDstate Uph;
+	std::vector<TDstate> Up1 (grid.size());
+	for (int timestep = 0; timestep < num_timesteps; timestep++) { // for each timestep
+		std::cout << "Timestep " << timestep << " of " << num_timesteps << '\n';
+		if (timestep > 0) {
+			U = Up1;
+		}
+
 // Go through each cell, calculate fluxes, update to new piecewise linear state
-	std::vector<TDstate> Uph (grid.size());	
+		for (unsigned int cellposition = 0; cellposition < grid.size(); ++cellposition) { // For each cell
+			double max_wavespeed = 0;
+			if (grid[cellposition].edge_type == 0)  { // Cell is not a ghost cell/edge cell
+   	   	LimitedFluxSolver(grid, delta_x, delta_y, state_minus, state_plus, gamma, slope_plus, slope_minus, limiter_number, cellposition, limiter_value, F, G, CFL, max_wavespeed, U, debug, textout);
+			// Now, use the fluxes calculated above to assign a new state, Uph
+				compute_halfway_state(Uph, U[cellposition], F, G, dt, delta_x, delta_y);
 
-	for (unsigned int cellnum = 0; cellnum < grid.size(); ++cellnum) { // For each cell
-		if (!isedge(grid,cellnum)) {
-            FluxSolver(grid, delta_x, delta_y, state_minus, state_plus, gamma, slope_plus, slope_minus, limiter_number, cellnum, limiter_value, F, G, min_delta, CFL, max_wavespeed);
-		// Now, use the fluxes calculated above to assign a new state, Uph
-		compute_halfway_state(cellnum, Uph, grid[cellnum].state, F, G, dt, delta_x, delta_y);
-									
-		} // end of if (!isedge(grid,cell)) 	
+				if (debug) {				
+//					std::cout << "Cell number: " << grid[cellposition].cellnumber << '\n';
+//					std::cout << "bottom/top Limiter - " << limiter_value.rho << " " << limiter_value.rhou << " " << limiter_value.rhov << " "  << limiter_value.E << '\n';
+//					std::cout << "Current State: " << U[cellposition].rho << " " << U[cellposition].rhou << " " << U[cellposition].rhov << " " << U[cellposition].E << '\n';
+//					std::cout << "F, cell number " << grid[cellposition].cellnumber << ": " << '\n';
+//					std::cout << F[0].rho << " " << F[0].rhou << " " << F[0].rhov << " " << F[0].E << '\n';
+//					std::cout << F[1].rho << " " << F[1].rhou << " " << F[1].rhov << " " << F[1].E << '\n';
+	
+//					std::cout << "G, cell number: " << grid[cellposition].cellnumber << '\n';
+//					std::cout << G[0].rho << " " << G[0].rhou << " " << G[0].rhov << " " << G[0].E << '\n';
+//					std::cout << G[1].rho << " " << G[1].rhou << " " << G[1].rhov << " " << G[1].E << '\n';
+	
+//					std::cout << "Cell " << grid[cellposition].cellnumber << " half-state: " <<  Uph.rho << " " << Uph.rhou << " " << Uph.rhov << " " << Uph.E << '\n';
 
+					textout << "Cell " << grid[cellposition].cellnumber << " Original State: " <<  U[cellposition].rho << " " << U[cellposition].rhou << " " << U[cellposition].rhov << " " << U[cellposition].E << '\n';
+					textout << "F[0] = " << F[0].rho << " " << F[0].rhou << " " << F[0].rhov << " " << F[0].E << '\n';
+					textout << "F[1] = " << F[1].rho << " " << F[1].rhou << " " << F[1].rhov << " " << F[1].E << '\n';
+					textout << "G[0] = " << G[0].rho << " " << G[0].rhou << " " << G[0].rhov << " " << G[0].E << '\n';
+					textout << "G[1] = " << G[0].rho << " " << G[1].rhou << " " << G[1].rhov << " " << G[1].E << '\n';
+					textout << "Cell " << grid[cellposition].cellnumber << " half-state: " <<  Uph.rho << " " << Uph.rhou << " " << Uph.rhov << " " << Uph.E << '\n';
+				}
 
-// -----------------------------
-// Need to check values of flux to see if they are giving accurate results!
-
-//
-// Go through each edge, calculate flux, save
-//		for (int edge = 1, edge <= numedges, ++edge)
-//
 // Solve riemann problem on edge for euler flux
-		ODstate left;
-		ODstate right;
-		left.rho = 1.0; //rho
-		left.rhou = 300; //rho*u or rho*v
-		left.E = 100000/0.4 - pow(left.rhou,2)/(left.rho*2); //E
-		right.rho = 1;
-		right.rhou = 0;
-		right.E = 100000/0.4 - pow(right.rhou,2)/(right.rho*2);				
+				TDstate state_center_2D = U[cellposition];
+				TDstate tempflux;
+				ODstate state_leftcell_1D, center_lr, center_bt, state_rightcell_1D, state_bottomcell_1D, state_topcell_1D;
+				
+				assign_edge_state(state_leftcell, state_rightcell, U, grid, cellposition, 0); // The left and right cell TDstates of the current cell
+				assign_edge_state(state_bottomcell, state_topcell, U, grid, cellposition, 1); // The bottom and top cell TDstates of the current cell
 
-/*		ODstate test_state = Exact_Riemann_Solver(left, right, thresh, gamma);
+// All this mess is because the riemann problem is 1D and we store 2D states.
+// So we have to make new, temporary 1D states and fixes (all the doubles) to make the RP work.
+				center_lr.rho = U[cellposition].rho;
+				center_lr.rhou = U[cellposition].rhou;
+				double center_lr_parallelvel = U[cellposition].rhov/U[cellposition].rho; 
+				center_lr.E = U[cellposition].E;
 
-		std::cout << '\n' << "State on x=0 is:" << '\n';
-		std::cout << test_state.rho << '\n';
-		std::cout << test_state.rhou << '\n';
-		std::cout << test_state.E << '\n';
-		std::cout << test_state.pressure << '\n';
-*/
+				center_bt.rho = U[cellposition].rho;
+				double center_bt_parallelvel = U[cellposition].rhou/U[cellposition].rho; 
+				center_bt.rhou = U[cellposition].rhov;	
+				center_bt.E = U[cellposition].E;
+				
+				state_leftcell_1D.rho = state_leftcell.rho;
+				state_leftcell_1D.rhou = state_leftcell.rhou;
+				double leftcell_parallelvel = state_leftcell.rhov/state_leftcell.rho;
+				state_leftcell_1D.E = state_leftcell.E;
+
+				state_rightcell_1D.rho = state_rightcell.rho; 
+				state_rightcell_1D.rhou = state_rightcell.rhou;
+				double rightcell_parallelvel = state_rightcell.rhov/state_rightcell.rho; 
+				state_rightcell_1D.E = state_rightcell.E;
+
+				state_bottomcell_1D.rho = state_bottomcell.rho;
+				double bottomcell_parallelvel = state_bottomcell.rhou/state_bottomcell.rho;
+				state_bottomcell_1D.rhou = state_bottomcell.rhov;
+				state_bottomcell_1D.E = state_bottomcell.E;
+
+				state_topcell_1D.rho = state_topcell.rho;
+				double topcell_parallelvel = state_topcell.rhou/state_topcell.rho;
+				state_topcell_1D.rhou = state_topcell.rhov;
+				state_topcell_1D.E = state_topcell.E;
 
 
+// Need to read in overall velocity magnitude to Exact Riemann Solver so we can get an accurate pressure reading!
+// Reconstruct, from the state_[  ] ODstates, the TDstates corresponding assuming that the non-OD direction velocity is constant
+// Then compute the flux from these new TDstates (4x), and update solution from t+1/2 to t+1 !!!
+				ODstate state_leftedge_1D = Exact_Riemann_Solver(state_leftcell_1D, center_lr, leftcell_parallelvel, center_lr_parallelvel, thresh, gamma, debug);
+				ODstate state_rightedge_1D = Exact_Riemann_Solver(center_lr, state_rightcell_1D, center_lr_parallelvel, rightcell_parallelvel, thresh, gamma, debug);
+				ODstate state_bottomedge_1D = Exact_Riemann_Solver(state_bottomcell_1D, center_bt, bottomcell_parallelvel, center_bt_parallelvel, thresh, gamma, debug);
+				ODstate state_topedge_1D = Exact_Riemann_Solver(center_bt, state_topcell_1D, center_bt_parallelvel, topcell_parallelvel, thresh, gamma, debug);
+
+
+// initialize new TD states that will be computed from the riemann 1D states
+				TDstate state_leftedge_2D, state_rightedge_2D, state_bottomedge_2D, state_topedge_2D;
+
+
+				state_leftedge_2D.rho = state_leftedge_1D.rho;
+				state_leftedge_2D.rhou = state_leftedge_1D.rhou;
+				state_leftedge_2D.rhov = state_center_2D.rhov;
+				state_leftedge_2D.E = state_leftedge_1D.E;
+				
+				state_rightedge_2D.rho = state_rightedge_1D.rho;
+				state_rightedge_2D.rhou = state_rightedge_1D.rhou;
+				state_rightedge_2D.rhov = state_center_2D.rhov;
+				state_rightedge_2D.E = state_rightedge_1D.E;
+
+				state_bottomedge_2D.rho = state_bottomedge_1D.rho;
+				state_bottomedge_2D.rhou = state_center_2D.rhou; 
+				state_bottomedge_2D.rhov = state_bottomedge_1D.rhou;
+				state_bottomedge_2D.E = state_bottomedge_1D.E;
+
+				state_topedge_2D.rho = state_topedge_1D.rho;
+				state_topedge_2D.rhou = state_center_2D.rhou; 
+				state_topedge_2D.rhov = state_topedge_1D.rhou;
+				state_topedge_2D.E = state_topedge_1D.E;
+				
+				compute_cell_flux(tempflux, state_leftedge_2D, 0, gamma);
+				F[0] = tempflux;
+				compute_cell_flux(tempflux, state_rightedge_2D, 0, gamma);
+				F[1] = tempflux;
+				compute_cell_flux(tempflux, state_bottomedge_2D, 1, gamma);
+				G[0] = tempflux;
+				compute_cell_flux(tempflux, state_topedge_2D, 1, gamma);
+				G[1] = tempflux;
 //Use all these fluxes to define updated state on each cell 
+				compute_halfway_state(Up1[cellposition], Uph, F, G, dt, delta_x, delta_y); 
+				
+				if (debug) {
+					textout << "Cell " << grid[cellposition].cellnumber << " Full-Updated State : " <<  Up1[cellposition].rho << " " << Up1[cellposition].rhou << " " << Up1[cellposition].rhov << " " << Up1[cellposition].E << '\n' << '\n';
+//					std::cout << "Cell " << grid[cellposition].cellnumber << " Full-Updated State : " <<  Up1[cellposition].rho << " " << Up1[cellposition].rhou << " " << Up1[cellposition].rhov << " " << Up1[cellposition].E << '\n' << '\n';
+				}
+			} // end of if (!isedge(grid,cell)) 
+		} // end of for(unsigned int cell = 0; cell < grid.size(); ++cell) (first one)
 
-//Option to save at each timestep
+		//Update dt based on current wavespeeds
+		dt = CFL*min_delta/max_wavespeed;
+		std::cout << "dt = " << dt << '\n';
 
-	} // end of for(unsigned int cell = 0; cell < grid.size(); ++cell)
+
+
+		// Now that the updated solution has been calculated, we need to redefine the ghost cells to the correct values
+		for(unsigned int cellposition = 0; cellposition < grid.size(); ++cellposition) {
+			std::cout << "grid[cellposition] = " << grid[cellposition].edge_type << '\n';
+			if (grid[cellposition].edge_type != 0) { // It is a ghost cell 
+				std::cout << "Line 272 \n";
+			//	int special_value = -2;		
+				int num_adjacent_interior_cells = 0;		
+				std::vector<int> edge_directions;
+				std::vector<int> adjacent_interior_cellnumber;
+				std::cout << "Line 277 \n";
+				for(int adjacentcell_index = 0; adjacentcell_index < 4; ++adjacentcell_index) {
+					std::cout << "Line 279 \n";
+					auto interior_cell_loc = std::find(std::begin(interior_cells), std::end(interior_cells), grid[cellposition].adjacent_cells[adjacentcell_index]);
+					if (interior_cell_loc != std::end(interior_cells)) { // if we actually find a match in the interior cells for the adjacent cell
+						num_adjacent_interior_cells++;
+						edge_directions.push_back(adjacentcell_index); //0 or 2 is l-r, 1 or 3 is bottom-top
+						adjacent_interior_cellnumber.push_back(grid[cellposition].adjacent_cells[adjacentcell_index]);
+					}
+				}
+				if (debug) {
+					textout << "Cell Number: " << grid[cellposition].cellnumber << '\n';
+					textout << "Num adjacent interior cells: " << num_adjacent_interior_cells << '\n';
+				}
+				std::cout << "Line 291 num_adjacent_interior_cells: " << num_adjacent_interior_cells << '\n';
+				// If this assert is tripped, your grid has at least one cell that borders three interior cells, and we can't make boundary conditions for this!
+				assert(num_adjacent_interior_cells < 3);
+			
+				std::cout << "Line 295 \n";
+
+				if (num_adjacent_interior_cells == 1) { // Only if not an interior corner
+				//	if (edge_directions[0] < 2) {
+				//		edge_directions[0] = (edge_directions[0] + 2);
+				//	} else {
+				//		edge_directions[0] = (edge_directions[0] - 2);					
+				//	}
+
+				// Assign the ghost cell state to be equal to its' adjacent cell's state
+
+					Up1[cellposition] = Up1[find_cellposition(grid, grid[cellposition].adjacent_cells[edge_directions[0]])];
+
+					if (edge_directions[0] >= 2) {
+						edge_directions[0] = (edge_directions[0] - 2);
+					}
+
+					assert((edge_directions[0] == 0) || (edge_directions[0] == 1));
+
+					if (grid[cellposition].edge_type == 1) { // wall BC
+						if ((edge_directions[0] == 0)){ // left-right
+							if (Up1[cellposition].rhou != 0) {
+								Up1[cellposition].rhou = -(Up1[cellposition].rhou);
+							}
+						} else if (edge_directions[0] == 1) { //up-down
+							if (Up1[cellposition].rhov != 0) {
+								Up1[cellposition].rhov = -(Up1[cellposition].rhov);
+							}
+						}			
+					}
+				} else { // This is an interior corner
+					textout << "Interior Corner!!" << '\n';
+					int cellposition_direction0 = find_cellposition(grid, grid[cellposition].adjacent_cells[edge_directions[0]]);
+					int cellposition_direction1 = find_cellposition(grid, grid[cellposition].adjacent_cells[edge_directions[1]]);
+	
+					Up1[cellposition].rho = (Up1[cellposition_direction0].rho + Up1[cellposition_direction1].rho)/2;
+					Up1[cellposition].E = (Up1[cellposition_direction0].E + Up1[cellposition_direction1].E)/2;
+					
+					std::vector<int> edge_directions01 = edge_directions;
+					double U,V;					
+					if (edge_directions01[0] >= 2) {
+						edge_directions01[0] = (edge_directions01[0] - 2);
+					}
+					if (edge_directions01[1] >= 2) {
+						edge_directions01[1] = (edge_directions01[1] - 2);
+					}
+					if (edge_directions01[0] == 0) { //first one is the left-right boundary cell
+						U = -(Up1[cellposition_direction0].rhou/Up1[cellposition_direction0].rho);
+						V = -(Up1[cellposition_direction1].rhov/Up1[cellposition_direction1].rho);
+					} else {
+						V = -(Up1[cellposition_direction0].rhov/Up1[cellposition_direction0].rho);
+						U = -(Up1[cellposition_direction1].rhou/Up1[cellposition_direction1].rho);
+					}
+					Up1[cellposition].rhou = Up1[cellposition].rho*U;
+					Up1[cellposition].rhov = Up1[cellposition].rho*V;
+				}
+				if (debug) {
+					textout << "Updated state: " << Up1[cellposition].rho << " " << Up1[cellposition].rhou << " " << Up1[cellposition].rhov << " " << Up1[cellposition].E << '\n' << '\n';
+				}
+				std::cout << "Line 352 \n";
+			} // end of if (isedge(grid,cell)) 
+		} // end of for(unsigned int cell = 0; cell < grid.size(); ++cell) (second one)
+		if (save_timesteps) {
+			write_to_file(grid,Up1,output_filename);
+		}
+		if (debug) {
+			textout.close();
+		}
+	} // end of for(int t = 0; t <= 2*dt; t++) 
 return 0;
 }
 
 
+
 // This is the land of the helper functions! ---------------------------------------------------
 
-void FluxSolver(const std::vector<cell>& grid, double& delta_x, double& delta_y, TDstate& state_minus, TDstate& state_plus, double gamma, TDstate& slope_plus, TDstate& slope_minus, int limiter_number, int cellnum, TDstate& limiter_value, std::vector<TDstate>& F, std::vector<TDstate>& G, double min_delta, double CFL, double& max_wavespeed) {
 
-	delta_x = (vectormax(grid[cellnum].cornerlocs_x) - vectormin(grid[cellnum].cornerlocs_x));
-	delta_y = (vectormax(grid[cellnum].cornerlocs_y) - vectormin(grid[cellnum].cornerlocs_y));
+// LimitedFluxSolver computs the limiter value to get the flux for the initial t -> t+1/2 update
+// This is computed prior to riemann problem for each timestep update
+void LimitedFluxSolver(const std::vector<cell>& grid, double& delta_x, double& delta_y, TDstate& state_minus, TDstate& state_plus, double gamma, TDstate& slope_plus, TDstate& slope_minus, int limiter_number, int cellposition, TDstate& limiter_value, std::vector<TDstate>& F, std::vector<TDstate>& G, double CFL, double& max_wavespeed, std::vector<TDstate>& U, bool debug, std::ofstream& textout) {
 
-    // Calculate the limited flux of each conserved quantity for initial t -> t+1/2 update
-	for (int direction = 0; direction < 2; ++direction) { // For the left/right direction and up/down direction
-		// Assign the bottom/left and the top/right states for each cell
-		assign_edge_state(state_minus, state_plus, grid, cellnum, direction);	
-						
+	delta_x = (vectormax(grid[cellposition].cornerlocs_x) - vectormin(grid[cellposition].cornerlocs_x));
+	delta_y = (vectormax(grid[cellposition].cornerlocs_y) - vectormin(grid[cellposition].cornerlocs_y));
+
+   // Calculate the limited flux of each conserved quantity for initial t -> t+1/2 update
+	for (int direction = 0; direction < 2; ++direction) { // For the left/right direction and bottom/top direction
+		
+		// Assign the bottom/left and the top/right states for current cell
+		// state_minus and state_plus are the bottom/left and top/right TDstates, respectively
+		// U is the vector of TDstates that is the current U for all states, not the initial U
+
+		assign_edge_state(state_minus, state_plus, U, grid, cellposition, direction);	
+		
 		// Calculate the flux of each conserved variable, in each direction, on each face, of that cell.
 		// Flux needs to be calculated by first finding the limiter (direction-dependent), then using that limiter to calculate the directional flux, then using the two directional fluxes to update from u_t to u_t+1/2	
 			
-		compute_slope(slope_minus, slope_plus, grid, cellnum, direction, state_minus, state_plus, delta_x, delta_y);
+		compute_slope(slope_minus, slope_plus, direction, state_minus, state_plus, delta_x, delta_y, U[cellposition]);
+	
+		if ((direction == 1) && (debug)) {
+			textout << "Slope Minus: " << slope_minus.rho << " " << slope_minus.rhou << " " << slope_minus.rhov << " " << slope_minus.E << '\n';
+			textout << "Slope Plus: " << slope_plus.rho << " " << slope_plus.rhou << " " << slope_plus.rhov << " " << slope_plus.E << '\n';
+			std::cout << "Cell Num: " << cellposition << " Slope Plus: " << slope_plus.rho << " " << slope_plus.rhou << " " << slope_plus.rhov << " " << slope_plus.E << '\n';
+		}
+
 		compute_limiter(limiter_value, slope_minus, slope_plus, limiter_number);
 
+		if (debug) {
+			textout << "Limiter Num: " << limiter_number << " Limiter Value: " << limiter_value.rho << " " << limiter_value.rhou << " " << limiter_value.rhov << " " << limiter_value.E << '\n';
+		}
+
 		if (direction == 0) { // Compute F, x-fluxes
-			compute_limited_flux(F, limiter_value, grid[cellnum].state, slope_plus, direction, gamma);
+			compute_limited_flux(F, limiter_value, U[cellposition], slope_plus, slope_minus, direction, gamma, CFL);
 //			std::cout << "rho limiter x: " << limiter_value.rho << '\n';
 		} else { // Compute G, y-fluxes
 //			std::cout << "rho limiter y: " << limiter_value.rho << '\n';
-			compute_limited_flux(G, limiter_value, grid[cellnum].state, slope_plus, direction, gamma);
+			compute_limited_flux(G, limiter_value, U[cellposition], slope_plus, slope_minus, direction, gamma, CFL);
 		}
 	} // end of for (int direction = 0; direction < 2; ++direction)
-//	std::cout << "F flux: " << F[0].rho << " " << F[1].rho << ", G flux: " << G[0].rho << " " << G[1].rho << '\n';	
-	max_wavespeed_calculator_riemann(max_wavespeed, grid[cellnum].state, gamma);
+
+	max_wavespeed_calculator_riemann(max_wavespeed, U[cellposition], gamma);
 }
 
 
-bool isedge(const std::vector<cell>& grid, int cellnum) {
-	int special_value = -1;
-	if ((grid[cellnum].adjacent_cells[0] == special_value) || (grid[cellnum].adjacent_cells[1] == special_value) || (grid[cellnum].adjacent_cells[2] == special_value)  || (grid[cellnum].adjacent_cells[3] == special_value)) {
+bool isedge(const std::vector<cell>& grid, int cellposition) {
+	int special_value = -2;
+	if ((grid[cellposition].adjacent_cells[0] == special_value) || (grid[cellposition].adjacent_cells[1] == special_value) || (grid[cellposition].adjacent_cells[2] == special_value)  || (grid[cellposition].adjacent_cells[3] == special_value)) {
 		return(1);
-	}
-	else {
+	} else {
 		return(0);
 	}
 }
 
+double find_cellposition(const std::vector<cell>& grid, int& cellnumber_desired) {
+	for(unsigned int cellposition = 0; cellposition < grid.size(); ++cellposition) {
+		if (grid[cellposition].cellnumber == cellnumber_desired) {
+			return(cellposition);
+		}
+	}
+}
 
-void assign_edge_state(TDstate &state_minus, TDstate &state_plus, const std::vector<cell>& grid, int cellnum, int direction) {
+void assign_edge_state(TDstate &state_minus, TDstate &state_plus, const std::vector<TDstate>& U, const std::vector<cell>& grid, int cellposition, int direction) { // THIS FUNCTION IS HORRIBLY INEFFICIENT ESPECIALLY SINCE IT IS CALLED FOUR TIMES PER CELL!
 	int adjacent_bl, adjacent_tr;
 
-	adjacent_bl = (grid[cellnum].adjacent_cells[direction]);
-	adjacent_tr = (grid[cellnum].adjacent_cells[direction+2]);
+	adjacent_bl = (grid[cellposition].adjacent_cells[direction]);
+	adjacent_tr = (grid[cellposition].adjacent_cells[direction+2]);
 
-	state_minus = (grid[adjacent_bl].state);
-	state_plus = (grid[adjacent_tr].state);
+	// Now find what the adjacent cell's cellposition is and grab its current state
+	if (grid[cellposition-1].cellnumber == adjacent_bl) {
+		state_minus = U[cellposition-1];
+	} else { //go though a loop
+		state_minus = U[find_cellposition(grid,adjacent_bl)];
+	}
+//	std::cout << "In AES: adjacent_bl = " << adjacent_bl << '\n';	
+
+	if (grid[cellposition+1].cellnumber == adjacent_tr) {
+		state_plus = U[cellposition+1];
+	} else { //go though a loop
+		state_plus = U[find_cellposition(grid,adjacent_tr)];	
+	}
 }
 
 
-void compute_slope(TDstate &slope_minus, TDstate &slope_plus, std::vector<cell> grid, int cellnum, int direction, TDstate state_minus, TDstate state_plus, double delta_x, double delta_y) {
+void compute_slope(TDstate &slope_minus, TDstate &slope_plus, int direction, TDstate state_minus, TDstate state_plus, double delta_x, double delta_y, TDstate& U_center) {
 	if (direction == 0) { //left-right
-		slope_minus.rho = ((grid[cellnum].state.rho - state_minus.rho)/delta_x); // was 2*delta_x, changed to just delta_x from 1/21/15 notes pg.2
-		slope_minus.rhou = ((grid[cellnum].state.rhou - state_minus.rhou)/delta_x);
-		slope_minus.rhov = ((grid[cellnum].state.rhov - state_minus.rhov)/delta_x);
-		slope_minus.E = ((grid[cellnum].state.E - state_minus.E)/delta_x);
-		slope_plus.rho = ((state_plus.rho - grid[cellnum].state.rho)/delta_x);
-		slope_plus.rhou = ((state_plus.rhou - grid[cellnum].state.rhou)/delta_x);
-		slope_plus.rhov = ((state_plus.rhov - grid[cellnum].state.rhov)/delta_x);
-		slope_plus.E = ((state_plus.E - grid[cellnum].state.E)/delta_x);
+		slope_minus.rho = ((U_center.rho - state_minus.rho)/delta_x); // was 2*delta_x, changed to just delta_x from 1/21/15 notes pg.2
+		slope_minus.rhou = ((U_center.rhou - state_minus.rhou)/delta_x);
+		slope_minus.rhov = ((U_center.rhov - state_minus.rhov)/delta_x);
+		slope_minus.E = ((U_center.E - state_minus.E)/delta_x);
+
+		slope_plus.rho = ((state_plus.rho - U_center.rho)/delta_x);
+		slope_plus.rhou = ((state_plus.rhou - U_center.rhou)/delta_x);
+		slope_plus.rhov = ((state_plus.rhov - U_center.rhov)/delta_x);
+		slope_plus.E = ((state_plus.E - U_center.E)/delta_x);
 	} else {
-		slope_minus.rho = ((grid[cellnum].state.rho - state_minus.rho)/delta_y); // was 2*delta_y, changed to just delta_x from 1/21/15 notes pg.2
-		slope_minus.rhou = ((grid[cellnum].state.rhou - state_minus.rhou)/delta_y);
-		slope_minus.rhov = ((grid[cellnum].state.rhov - state_minus.rhov)/delta_y);
-		slope_minus.E = ((grid[cellnum].state.E - state_minus.E)/delta_y);
-		slope_plus.rho = ((state_plus.rho - grid[cellnum].state.rho)/delta_y);
-		slope_plus.rhou = ((state_plus.rhou - grid[cellnum].state.rhou)/delta_y);
-		slope_plus.rhov = ((state_plus.rhov - grid[cellnum].state.rhov)/delta_y);
-		slope_plus.E = ((state_plus.E - grid[cellnum].state.E)/delta_y);
+		slope_minus.rho = ((U_center.rho - state_minus.rho)/delta_y); // was 2*delta_y, changed to just delta_x from 1/21/15 notes pg.2
+		slope_minus.rhou = ((U_center.rhou - state_minus.rhou)/delta_y);
+		slope_minus.rhov = ((U_center.rhov - state_minus.rhov)/delta_y);
+		slope_minus.E = ((U_center.E - state_minus.E)/delta_y);
+
+		slope_plus.rho = ((state_plus.rho - U_center.rho)/delta_y);
+		slope_plus.rhou = ((state_plus.rhou - U_center.rhou)/delta_y);
+		slope_plus.rhov = ((state_plus.rhov - U_center.rhov)/delta_y);
+		slope_plus.E = ((state_plus.E - U_center.E)/delta_y);
 	}
 }
 
 
 void compute_limiter(TDstate &limiter_value, TDstate slope_minus, TDstate slope_plus, int limiter_number) {
-	switch(limiter_number) {
-		case 1: // Harmonic
-			harmonic_limiter(limiter_value, slope_minus, slope_plus);
-			break;
-//		default: do default stuff
-//			break;
+	if (limiter_number == 1) { // Harmonic
+		harmonic_limiter(limiter_value, slope_minus, slope_plus);
+	} else if (limiter_number == 2) { // First order upwind
+		limiter_value.rho = 0;
+		limiter_value.rhou = 0;
+		limiter_value.rhov = 0;
+		limiter_value.E = 0;
+	} else if (limiter_number == 3) { // Lax-Wendroff
+		limiter_value = slope_plus;
 	}
 }
 
@@ -244,52 +497,130 @@ void harmonic_limiter(TDstate &limiter_value, TDstate slope_minus, TDstate slope
 	double delta = pow(10,-12);
 	limiter_value.rho = (std::abs(slope_minus.rho)*slope_plus.rho + slope_minus.rho*std::abs(slope_plus.rho))/(std::abs(slope_minus.rho) + std::abs(slope_plus.rho) + delta);
 	limiter_value.rhou = (std::abs(slope_minus.rhou)*slope_plus.rhou + slope_minus.rhou*std::abs(slope_plus.rhou))/(std::abs(slope_minus.rhou) + std::abs(slope_plus.rhou) + delta);
-	limiter_value.rhov = (std::abs(slope_minus.rhov)*slope_plus.rhov + slope_minus.rhou*std::abs(slope_plus.rhov))/(std::abs(slope_minus.rhov) + std::abs(slope_plus.rhov) + delta);
+	limiter_value.rhov = (std::abs(slope_minus.rhov)*slope_plus.rhov + slope_minus.rhov*std::abs(slope_plus.rhov))/(std::abs(slope_minus.rhov) + std::abs(slope_plus.rhov) + delta);
 	limiter_value.E = (std::abs(slope_minus.E)*slope_plus.E + slope_minus.E*std::abs(slope_plus.E))/(std::abs(slope_minus.E) + std::abs(slope_plus.E) + delta);
 }
 
-
-void compute_limited_flux(std::vector<TDstate>& flux, const TDstate& limiter_value, const TDstate& center_state, const TDstate& slope_plus, int direction, double gamma) {
+void compute_limited_flux(std::vector<TDstate>& flux, const TDstate& limiter_value, const TDstate& center_state, const TDstate& slope_plus, const TDstate& slope_minus, int direction, double gamma, double CFL) {
 // flux is for the (i-1/2 and i+1/2) faces [or (j-1/2 and j+1/2) faces]
-	TDstate center_flux; //computed in line below
-	compute_center_flux(center_flux, center_state, direction, gamma);
-//	std::cout << "Non-limited flux: " << center_flux.rho << '\n';
+	TDstate minus_limited_state, plus_limited_state, tempflux;
 
 	assert(flux.size() == 2);
 
-//	left edge rho flux = (center rho flux)/(center rho)* [(center_rho) +/- 0.5*(plus half rho slope)*(rho limiter)*(1 - local CFL number)]
-	flux[0].rho = ((center_flux.rho/center_state.rho)*(center_state.rho - 0.5*(slope_plus.rho*limiter_value.rho)));
-	flux[0].rhou = ((center_flux.rhou/center_state.rhou)*(center_state.rhou - 0.5*(slope_plus.rhou*limiter_value.rhou)));
-	flux[0].rhov = ((center_flux.rhov/center_state.rhov)*(center_state.rhov - 0.5*(slope_plus.rhov*limiter_value.rhov)));
-	flux[0].E = ((center_flux.E/center_state.E)*(center_state.E - 0.5*(slope_plus.E*limiter_value.E)));
+//	std::cout << "In CLF: center_state = " << center_state.rho << " " << center_state.rhou << " " << center_state.rhov << " " << center_state.E << '\n';
 
-	flux[1].rho = ((center_flux.rho/center_state.rho)*(center_state.rho + 0.5*(slope_plus.rho*limiter_value.rho)));
-	flux[1].rhou = ((center_flux.rhou/center_state.rhou)*(center_state.rhou + 0.5*(slope_plus.rhou*limiter_value.rhou)));
-	flux[1].rhov = ((center_flux.rhov/center_state.rhov)*(center_state.rhov + 0.5*(slope_plus.rhov*limiter_value.rhov)));
-	flux[1].E = ((center_flux.E/center_state.E)*(center_state.E + 0.5*(slope_plus.E*limiter_value.E)));
+	minus_limited_state.rho = center_state.rho - 0.5*slope_minus.rho*limiter_value.rho*(1-CFL);
+	minus_limited_state.rhou = center_state.rhou - 0.5*slope_minus.rhou*limiter_value.rhou*(1-CFL);
+	minus_limited_state.rhov = center_state.rhov - 0.5*slope_minus.rhov*limiter_value.rhov*(1-CFL);
+	minus_limited_state.E = center_state.E - 0.5*slope_minus.E*limiter_value.E*(1-CFL);
+
+	plus_limited_state.rho = center_state.rho + 0.5*slope_plus.rho*limiter_value.rho*(1-CFL);
+	plus_limited_state.rhou = center_state.rhou + 0.5*slope_plus.rhou*limiter_value.rhou*(1-CFL);
+	plus_limited_state.rhov = center_state.rhov + 0.5*slope_plus.rhov*limiter_value.rhov*(1-CFL);
+	plus_limited_state.E = center_state.E + 0.5*slope_plus.E*limiter_value.E*(1-CFL);
+
+	compute_cell_flux(tempflux, minus_limited_state, direction, gamma);
+	flux[0] = (tempflux);
+	compute_cell_flux(tempflux, plus_limited_state, direction, gamma);
+	flux[1] = (tempflux);
 }
 
-void compute_center_flux(TDstate &center_flux, TDstate center_state, int direction, double gamma) {
-	double U = center_state.rhou/center_state.rho;
-	double V = center_state.rhov/center_state.rho;
-	double pressure = compute_pressure_2D(center_state, gamma);
+void compute_cell_flux(TDstate &flux, const TDstate& state, int direction, double gamma) {
+
+//	std::cout << "In CCF: state = " << state.rho << " " << state.rhou << " " << state.rhov << " " << state.E << '\n';
+
+	assert(state.rho > 0);
+	assert(state.E > 0);
+
+	double U = state.rhou/state.rho;
+	double V = state.rhov/state.rho;
+	double pressure = compute_pressure_2D(state, gamma);
 	
 	if (direction == 0) {
-		center_flux.rho = center_state.rhou;
-		center_flux.rhou = center_state.rho*pow(U,2) + pressure;
-		center_flux.rhov = center_state.rho*U*V;
-		center_flux.E = U*(center_state.E + pressure);
+		flux.rho = state.rhou;
+		flux.rhou = state.rho*pow(U,2) + pressure;
+		if ((U == 0) || (V == 0)) {
+			flux.rhov = 0;
+		} else {
+			flux.rhov = state.rho*U*V;
+		}
+		flux.E = U*(state.E + pressure);
 	} else { //direction == 1, bottom/top
-		center_flux.rho = center_state.rhou;
-		center_flux.rhou = center_state.rho*U*V;		
-		center_flux.rhov = center_state.rho*pow(V,2) + pressure;
-		center_flux.E = V*(center_state.E + pressure);
+		flux.rho = state.rhov;
+		if ((U == 0) || (V == 0)) {
+			flux.rhou = 0;
+		} else {
+			flux.rhou = state.rho*U*V;
+		}
+//		std::cout << "In CCF: rho,V, V^2, P = " << state.rho << " " << V << " " << pow(V,2) << " " << pressure << '\n';
+		flux.rhov = state.rho*pow(V,2) + pressure;
+		flux.E = V*(state.E + pressure);
 	}
 }
 
-void compute_halfway_state(unsigned int& cellnum, TDstate& Uph, const TDstate& current_U, const std::vector<double>& F, const std::vector<double>& G, double dt, double dx, double dy) {
-	Uph[cellnum].rho = (current_U.rho - dt/(2*dx)*(F[1].rho-F[0].rho) - dt/(2*dy)*(G[1].rho-G[0].rho));
-	Uph[cellnum].rhou = (current_U.rhou - dt/(2*dx)*(F[1].rhou-F[0].rhou) - dt/(2*dy)*(G[1].rhou-G[0].rhou));
-	Uph[cellnum].rhov = (current_U.rhov - dt/(2*dx)*(F[1].rhov-F[0].rhov) - dt/(2*dy)*(G[1].rhov-G[0].rhov));
-	Uph[cellnum].E = (current_U.E - dt/(2*dx)*(F[1].E-F[0].E) - dt/(2*dy)*(G[1].E-G[0].E));
+void compute_halfway_state(TDstate& Uph, const TDstate& current_U, const std::vector<TDstate>& F, const std::vector<TDstate>& G, double dt, double dx, double dy) {
+	Uph.rho = (current_U.rho - dt/(2*dx)*(F[1].rho-F[0].rho) - dt/(2*dy)*(G[1].rho-G[0].rho));
+	Uph.rhou = (current_U.rhou - dt/(2*dx)*(F[1].rhou-F[0].rhou) - dt/(2*dy)*(G[1].rhou-G[0].rhou));
+	Uph.rhov = (current_U.rhov - dt/(2*dx)*(F[1].rhov-F[0].rhov) - dt/(2*dy)*(G[1].rhov-G[0].rhov));
+	Uph.E = (current_U.E - dt/(2*dx)*(F[1].E-F[0].E) - dt/(2*dy)*(G[1].E-G[0].E));
 }
+
+
+double gridmin(const std::vector<cell>& grid, char direction) {
+	double delta, min_delta;
+	if (direction == 'x') {
+		min_delta = std::abs(grid[0].cornerlocs_x[0] - grid[0].cornerlocs_x[1]);
+		for (unsigned int it = 0; it < grid.size(); ++it) {
+			delta = std::abs(grid[it].cornerlocs_x[0] - grid[it].cornerlocs_x[1]);
+			if (delta < min_delta) {
+				min_delta = delta;
+			}
+			delta = std::abs(grid[it].cornerlocs_x[3] - grid[it].cornerlocs_x[2]);
+			if (delta < min_delta) {
+				min_delta = delta;
+			}
+		}
+	} else { // direction == "y"
+		min_delta = std::abs(grid[0].cornerlocs_y[3] - grid[0].cornerlocs_y[0]);
+		for (unsigned int it = 0; it < grid.size(); ++it) {
+			delta = std::abs(grid[it].cornerlocs_y[3] - grid[it].cornerlocs_y[0]);
+			if (delta < min_delta) {
+				min_delta = delta;
+			}
+			delta = std::abs(grid[it].cornerlocs_y[2] - grid[it].cornerlocs_y[1]);
+			if (delta < min_delta) {
+				min_delta = delta;
+			}
+		}
+	}
+	return(min_delta);
+}
+
+
+// Write grid to grid_file.txt to see how it is being read in and ensure reading is correct
+void output_grid(const std::vector<cell>& grid) {
+
+	std::ofstream ofile;
+	ofile.open("grid_file.txt");
+	for(auto input: grid) {
+		ofile << input.cellnumber << '\n';
+		ofile << "cornerlocs_x: " << input.cornerlocs_x[0] << ' ';
+		ofile << input.cornerlocs_x[1] << ' ';
+		ofile << input.cornerlocs_x[2] << ' ';
+		ofile << input.cornerlocs_x[3] << '\n';
+		ofile << "cornerlocs_y: " << input.cornerlocs_y[0] << ' ';
+		ofile << input.cornerlocs_y[1] << ' ';
+		ofile << input.cornerlocs_y[2] << ' ';
+		ofile << input.cornerlocs_y[3] << '\n';
+		ofile << "adjacent_cells: " << input.adjacent_cells[0] << ' ';
+		ofile << input.adjacent_cells[1] << ' ';
+		ofile << input.adjacent_cells[2] << ' ';
+		ofile << input.adjacent_cells[3] << '\n';
+		ofile << "edge_type: " << input.edge_type << '\n';
+		ofile << "state: " << input.state.rho << ' ';
+		ofile << input.state.rhou << ' ';
+		ofile << input.state.rhov << ' ';
+		ofile << input.state.E << '\n';
+	}
+}
+

@@ -1,4 +1,5 @@
 #include "file_header.h"
+#include "helper_functions.h"
 #include <iostream>
 #include <cmath>
 
@@ -13,28 +14,41 @@ struct wavetype {
 	int right;
 } type;
 
-ODstate compute_zerostate(std::vector<double> wavespeeds, ODstate left, ODstate U_star_l, ODstate U_star_r, ODstate right, double gamma, double a_r, double a_l);
+ODstate compute_zerostate(const std::vector<double>& wavespeeds, const ODstate& left, const ODstate& U_star_l, const ODstate& U_star_r, const ODstate& right, double gamma, double a_l, double a_r, double left_parallelvel, double right_parallelvel);
 
-ODstate Exact_Riemann_Solver(ODstate left, ODstate right, double thresh, double gamma) {
-	
+ODstate Exact_Riemann_Solver(ODstate left, ODstate right, double left_parallelvel, double right_parallelvel, double thresh, double gamma, bool debug) {
+
 	std::cout.precision(15);
 
 	double v_l = left.rhou/left.rho;
 	double v_r = right.rhou/right.rho;
-	double p_l = (gamma-1)*(left.E + pow(left.rhou,2)/(2*left.rho));
-	double p_r = (gamma-1)*(right.E + pow(right.rhou,2)/(2*right.rho));
+// Use compute_pressure_2D to find the actual pressure - with 2D velocity
+//----------------------------------------------------------------
+	TDstate left_TD, right_TD;
+
+	left_TD.rho = left.rho;
+	left_TD.rhou = left.rhou;
+	left_TD.rhov = left.rho*left_parallelvel;
+	left_TD.E = left.E;	
+
+	right_TD.rho = right.rho;
+	right_TD.rhou = right.rhou;
+	right_TD.rhov = right.rho*right_parallelvel;
+	right_TD.E = right.E;
+
+	double p_l = compute_pressure_2D(left_TD, gamma);
+	double p_r = compute_pressure_2D(right_TD, gamma);
+//----------------------------------------------------------------
+
 	double a_l = sqrt(gamma*p_l/left.rho);
 	double a_r = sqrt(gamma*p_r/right.rho);
 	double a_star_l, a_star_r;
 
-	//std::vector<int> type (2);
 	std::vector<double> wavespeeds_l, wavespeeds_r, wavespeeds_star, wavespeeds;
 
-	
 	double delta, p_guess;
 	int iter = 1;
 	double limiter = 1;
-//	int num_limiterchanges = 0;
 	std::vector<double> p_guess_temp(3), rho_l_star (3), rho_r_star (3), v_l_star (3), v_r_star (3);
 	std::vector<double> E_l_star (3), E_r_star (3), p_l_star (3), p_r_star (3);
 	std::vector<double> error (3);
@@ -43,12 +57,12 @@ ODstate Exact_Riemann_Solver(ODstate left, ODstate right, double thresh, double 
 	ODstate left_new, right_new, U_star_l, U_star_r;
 
 	//Determine which types to solve (rarefaction(1), shock(2), or nothing)
-
-	if (left.rho > right.rho) {
+	//We are allowed a density discontinuity but not a pressure or velocity discontinuity
+	if (p_l > p_r) {
 		type.left = 1;
 		type.right = 2;
 	}
-	else if (right.rho > left.rho) {
+	else if (p_l < p_r) {
 		type.left = 2;
 		type.right = 1;
 	}
@@ -79,7 +93,7 @@ ODstate Exact_Riemann_Solver(ODstate left, ODstate right, double thresh, double 
 	p_guess = 0.5*(p_l + p_r); //Guess for star state pressure
 
 	while(1) {
-		std::cout << '\n' << "Iteration Number " << iter << '\n';
+//		std::cout << '\n' << "Iteration Number " << iter << '\n';
 		
 //		std::cout << "Pressure Guess: " << p_guess << '\n';
 		p_guess_temp.at(0) = (p_guess - delta);
@@ -91,38 +105,40 @@ ODstate Exact_Riemann_Solver(ODstate left, ODstate right, double thresh, double 
 				std::cout << iF << '\n';
 		}
 */
-
+		
 		if (type.left == 1) { //The left state undergoes a rarefaction
 			for (int it = 0; it < 3; ++it) {
-				v_l_star.at(it) = (v_l - 2*a_l/(gamma-1)*(pow((p_guess_temp.at(it)/p_l), ((gamma-1)/(2*gamma))) - 1));
-				rho_l_star.at(it) = (left.rho*pow((p_guess_temp.at(it)/p_l),(1/gamma)));
-				E_l_star.at(it) = ((p_guess_temp.at(it)/(gamma-1)) - rho_l_star.at(it)*pow(v_l_star.at(it),2)/2);			
+				v_l_star[it] = (v_l - 2*a_l/(gamma-1)*(pow((p_guess_temp[it]/p_l), ((gamma-1)/(2*gamma))) - 1));
+				rho_l_star[it] = (left.rho*pow((p_guess_temp[it]/p_l),(1/gamma)));
+//				rho_l_star[it] = left.rho*pow((2/(gamma+1) + (gamma-1)/(a_l*(gamma+1))*(left.rhou/left.rho)),(2/(gamma-1)));
+				E_l_star[it] = ((p_guess_temp[it]/(gamma-1)) - rho_l_star[it]*pow(v_l_star[it],2)/2);			
 			}
 		}
 		else { //The left state undergoes a shock
 			A = 2/((gamma-1)*left.rho);
 			B = (gamma - 1)/(gamma + 1)*p_l;
 			for (int it = 0; it < 3; ++it) {
-				v_l_star.at(it) = (v_l - (p_guess_temp.at(it)-p_l)*sqrt(A/(p_guess_temp.at(it) + B)));
-				rho_l_star.at(it) = (left.rho*((p_l*(gamma-1) + p_guess_temp.at(it)*(gamma+1))/(p_guess_temp.at(it)*(gamma-1) + p_l*(gamma+1))));
-				E_l_star.at(it) = ((p_guess_temp.at(it)/(gamma-1)) - rho_l_star.at(it)*pow(v_l_star.at(it),2)/2);
+				v_l_star[it] = (v_l - (p_guess_temp[it]-p_l)*sqrt(A/(p_guess_temp[it] + B)));
+				rho_l_star[it] = (left.rho*((p_l*(gamma-1) + p_guess_temp[it]*(gamma+1))/(p_guess_temp[it]*(gamma-1) + p_l*(gamma+1))));
+				E_l_star[it] = ((p_guess_temp[it]/(gamma-1)) - rho_l_star[it]*pow(v_l_star[it],2)/2);
 			}
 		}
 
 		if (type.right == 1) { //The right state undergoes a rarefaction
 			for (int it = 0; it < 3; ++it) {
-				v_r_star.at(it) = (v_r - 2*a_r/(gamma-1)*(1 - pow((p_guess_temp.at(it)/p_r),((gamma-1)/(2*gamma)))));
-				rho_r_star.at(it) = (right.rho*pow((p_guess_temp.at(it)/p_r),(1/gamma)));
-				E_r_star.at(it) = ((p_guess_temp.at(it)/(gamma-1)) - rho_r_star.at(it)*pow(v_r_star.at(it),2)/2);			
+				v_r_star[it] = (v_r - 2*a_r/(gamma-1)*(1 - pow((p_guess_temp[it]/p_r),((gamma-1)/(2*gamma)))));
+				rho_r_star[it] = (right.rho*pow((p_guess_temp[it]/p_r),(1/gamma)));
+//				rho_r_star[it] = right.rho*pow((2/(gamma+1) - (gamma-1)/(a_r*(gamma+1))*(right.rhou/right.rho)),(2/(gamma-1))); 
+				E_r_star[it] = ((p_guess_temp[it]/(gamma-1)) - rho_r_star[it]*pow(v_r_star[it],2)/2);			
 			}
 		}
 		else { //The right state undergoes a shock
 			A = 2/((gamma-1)*right.rho);
 			B = (gamma - 1)/(gamma + 1)*p_r;
 			for (int it = 0; it < 3; ++it) {
-				v_r_star.at(it) = (v_r + (p_guess_temp.at(it)-p_r)*sqrt(A/(p_guess_temp.at(it)+B)));
-				rho_r_star.at(it) = (right.rho*((p_r*(gamma-1) + p_guess_temp.at(it)*(gamma+1))/(p_guess_temp.at(it)*(gamma-1) + p_r*(gamma+1))));
-				E_r_star.at(it) = ((p_guess_temp.at(it)/(gamma-1)) - rho_r_star.at(it)*pow(v_r_star.at(it),2)/2);
+				v_r_star[it] = (v_r + (p_guess_temp[it]-p_r)*sqrt(A/(p_guess_temp[it] + B)));
+				rho_r_star[it] = (right.rho*((p_r*(gamma-1) + p_guess_temp[it]*(gamma+1))/(p_guess_temp[it]*(gamma-1) + p_r*(gamma+1))));
+				E_r_star[it] = ((p_guess_temp[it]/(gamma-1)) - rho_r_star[it]*pow(v_r_star[it],2)/2);
 			}
 		}
 
@@ -156,14 +172,10 @@ ODstate Exact_Riemann_Solver(ODstate left, ODstate right, double thresh, double 
 
 // Start using the Newton's method solver here
 		for (int it = 0; it < 3; ++it) {
-			error.at(it) = (v_l_star.at(it) - v_r_star.at(it));
+			error[it] = (v_l_star[it] - v_r_star[it]);
 		}
 
-		std::cout << "error = " << error.at(1) << '\n';
-/*		for(auto iF:error) {
-				std::cout << iF << '\n';
-		}
-*/
+		//std::cout << "error = " << error.at(1) << '\n';
 
 		//Rate of error change with p
 		derrordp = (error.at(2) - error.at(0))/(2*delta);
@@ -180,20 +192,20 @@ End */
 			}
 		}
 		else { //Yey, the calculation converged on a pressure for the star state! And therefore a velocity, and therefore an energy!
-			U_star_l.rho = (rho_l_star.at(1)/2); 
-			U_star_l.rhou = (U_star_l.rho*v_l_star.at(1));
-			U_star_l.E = (p_guess_temp.at(1)/(gamma-1)-(pow(U_star_l.rhou,2)/(U_star_l.rho*2))); 
+			U_star_l.rho = rho_l_star[1]; 
+			U_star_l.rhou = (U_star_l.rho*v_l_star[1]);
+			U_star_l.E = (p_guess_temp[1]/(gamma-1)-(pow(U_star_l.rhou,2)/(U_star_l.rho*2))); 
 			U_star_l.pressure = p_guess_temp[1];
-			a_star_l = sqrt(gamma*p_guess_temp.at(1)/U_star_l.rho); //sqrt(gamma*P/rho)
+			a_star_l = sqrt(gamma*p_guess_temp[1]/U_star_l.rho); //sqrt(gamma*P/rho)
 
-			U_star_r.rho = (rho_r_star.at(1)/2); 
-			U_star_r.rhou = (U_star_r.rho*v_r_star.at(1));
-			U_star_r.E = (p_guess_temp.at(1)/(gamma-1)-(pow(U_star_r.rhou,2)/(U_star_r.rho*2))); 
+			U_star_r.rho = rho_r_star[1]; 
+			U_star_r.rhou = (U_star_r.rho*v_r_star[1]);
+			U_star_r.E = (p_guess_temp[1]/(gamma-1)-(pow(U_star_r.rhou,2)/(U_star_r.rho*2))); 
 			U_star_r.pressure = p_guess_temp[1];
-			a_star_r = sqrt(gamma*p_guess_temp.at(1)/U_star_r.rho); //sqrt(gamma*P/rho)
+			a_star_r = sqrt(gamma*p_guess_temp[1]/U_star_r.rho); //sqrt(gamma*P/rho)
 
- /* Error Checking
-			std::cout << '\n' << '\n' << "Yey, we converged!! U Star Left is: " << '\n';
+ // Error Checking
+	/*		std::cout << '\n' << '\n' << "Yey, we converged!! U Star Left is: " << '\n';
 			for(auto ustar:U_star_l) {
 				std::cout << ustar << '\n';
 			}
@@ -203,7 +215,8 @@ End */
 				std::cout << ustar << '\n';
 			}
 			std::cout << "V_r = " << U_star_r.rhou/U_star_r.rho << '\n';
-End */
+*/
+//End 
 
 			break;
 				// The long term is E
@@ -222,10 +235,22 @@ End */
 		}
 */		
 	}
-	
+
+	if (debug) {
+	//	std::cout << "Left " ;
+	//	outputODstate(left);
+	//	std::cout << "Left star " ;
+	//	outputODstate(U_star_l);
+	//	std::cout << "Right star " ;
+	//	outputODstate(U_star_r);
+	//	std::cout << "Right " ;	
+	//	outputODstate(right);
+	}
+
 	// Now compute which state is on the x=0 line
+
 	// First, find and order wavespeeds
-	//Note - according to paper, need to use modified wavespeeds!(eq.42) - try with these basic here to see if good solutions
+	// Note - according to paper, need to use modified wavespeeds!(eq.42) - try with these basic here to see if good solutions
 	if (type.left == 1) { //The left state undergoes a rarefaction
 		wavespeeds.push_back(left.rhou/left.rho - a_l);
 		wavespeeds.push_back(U_star_l.rhou/U_star_l.rho - a_star_l);
@@ -234,7 +259,7 @@ End */
 		wavespeeds.push_back(left.rhou/left.rho - a_l);
 	}
 
-	//average of velocities in left and right star state
+	//average of velocities in left and right star state - should be equal but averaging to reduce numerical error
 	wavespeeds.push_back(((U_star_r.rhou/U_star_r.rho) + (U_star_l.rhou/U_star_l.rho))/2); 
 
 	if (type.right == 1) { //The right state undergoes a rarefaction
@@ -244,8 +269,18 @@ End */
 	else { //The right state undergoes a shock
 		wavespeeds.push_back(right.rhou/right.rho + a_r);
 	}
-	
-	return (compute_zerostate(wavespeeds, left, U_star_l, U_star_r, right, gamma, a_l, a_r));	
+
+	if (debug) {
+//		std::cout << "Wavespeeds: ";
+//		for(auto input: wavespeeds) {
+//			std::cout << input << ", ";
+//		}
+//		std::cout << '\n';
+	}
+
+
+// Compute and return the state on x = 0
+	return (compute_zerostate(wavespeeds, left, U_star_l, U_star_r, right, gamma, a_l, a_r, left_parallelvel, right_parallelvel));	
 }
 
 
@@ -253,19 +288,19 @@ End */
 
 // ------------------------------------------------------------------------------------------
 
-ODstate compute_zerostate(std::vector<double> wavespeeds, ODstate left, ODstate U_star_l, ODstate U_star_r, ODstate right, double gamma, double a_l, double a_r) {
+ODstate compute_zerostate(const std::vector<double>& wavespeeds, const ODstate& left, const ODstate& U_star_l, const ODstate& U_star_r, const ODstate& right, double gamma, double a_l, double a_r, double left_parallelvel, double right_parallelvel) {
 
 	int left_wavenumber;
 	bool computed = 0;
 	ODstate in_raref;
 	
 	for (unsigned int it = 0; it < wavespeeds.size(); ++it) {
-		if (wavespeeds.at(it) < 0) {
+		if (wavespeeds[it] < 0) {
 			continue;
 		}
-		else if (wavespeeds.at(it) > 0) { // We found the right wave of the 
+		else if (wavespeeds[it] > 0) { // We found the right wave of the center state region 
 			computed = 1;
-			left_wavenumber = it;
+			left_wavenumber = it-1;
 		}
 	}
 	if (!computed) {
@@ -283,8 +318,15 @@ ODstate compute_zerostate(std::vector<double> wavespeeds, ODstate left, ODstate 
 			in_raref.rhou = in_raref.rho*(2/(gamma+1)*(a_l + (gamma-1)/2*(left.rhou/left.rho)));
 
 			double press, press_l;
-			press_l = (left.E + pow(left.rhou,2)/(left.rho*2))*(gamma-1);
+			TDstate press_calculation_state;
+			press_calculation_state.rho = left.rho;
+			press_calculation_state.rhou = left.rhou; // Order doesn't matter for directionality for this function
+			press_calculation_state.rhov = left_parallelvel*left.rho;
+			press_calculation_state.E = left.E;
+
+			press_l = compute_pressure_2D(press_calculation_state, gamma);
 			press = press_l*pow((2/(gamma+1) + (gamma-1)/(a_l*(gamma+1))*(left.rhou/left.rho)),((2*gamma)/(gamma-1)));
+
 
 			in_raref.E = (press/(gamma-1) - pow(in_raref.rhou,2)/(2*in_raref.rho));
 			return(in_raref);		
@@ -300,38 +342,50 @@ ODstate compute_zerostate(std::vector<double> wavespeeds, ODstate left, ODstate 
 		}
 		else if ((left_wavenumber == 3) && type.left == 2 && type.right == 1) { // left shock and right rarefaction and x=0 inside right rarefaction
 			in_raref.rho = right.rho*pow((2/(gamma+1) - (gamma-1)/(a_r*(gamma+1))*(right.rhou/right.rho)),(2/(gamma-1)));
-			in_raref.rhou = in_raref.rho*(2/(gamma+1)*(-a_l + (gamma-1)/2*(right.rhou/right.rho)));
+			in_raref.rhou = in_raref.rho*(2/(gamma+1)*(-a_r + (gamma-1)/2*(right.rhou/right.rho)));
 
 			double press, press_r;
-			press_r = (right.E + pow(right.rhou,2)/(right.rho*2))*(gamma-1);
-			press = press_r*pow((2/(gamma+1) - (gamma-1)/(a_l*(gamma+1))*(right.rhou/right.rho)),((2*gamma)/(gamma-1)));
+			TDstate press_calculation_state;
+			press_calculation_state.rho = right.rho;
+			press_calculation_state.rhou = right.rhou; // Order doesn't matter for directionality for this function
+			press_calculation_state.rhov = right_parallelvel*right.rho;
+			press_calculation_state.E = right.E;
+
+			press_r = compute_pressure_2D(press_calculation_state, gamma);
+			press = press_r*pow((2/(gamma+1) - (gamma-1)/(a_r*(gamma+1))*(right.rhou/right.rho)),((2*gamma)/(gamma-1)));
 
 			in_raref.E = (press/(gamma-1) - pow(in_raref.rhou,2)/(2*in_raref.rho));
 			return(in_raref);	
 		}
-		else if ((left_wavenumber == 3) && type.left == 2 && type.right == 2) { // left shock and right shock and x=0 is to the right of everything - should never be accessed
-			return(right);
-		}
-		else if ((left_wavenumber == 4) && type.left == 1 && type.right == 2) { // left rarefaction and right shock and x=0 is to the right of everything - should never be accessed
-			return(right);
-		}
+//		else if ((left_wavenumber == 3) && type.left == 2 && type.right == 2) { // left shock and right shock and x=0 is to the right of everything - should never be accessed
+//			return(right);
+//		}
+//		else if ((left_wavenumber == 4) && type.left == 1 && type.right == 2) { // left rarefaction and right shock and x=0 is to the right of everything - should never be accessed
+//			return(right);
+//		}
 		else if ((left_wavenumber == 4) && type.left == 1 && type.right == 1) { // left rarefaction and right rarefaction and x=0 is inside right rarefaction
 			in_raref.rho = right.rho*pow((2/(gamma+1) - (gamma-1)/(a_r*(gamma+1))*(right.rhou/right.rho)),(2/(gamma-1)));
-			in_raref.rhou = in_raref.rho*(2/(gamma+1)*(-a_l + (gamma-1)/2*(right.rhou/right.rho)));
+			in_raref.rhou = in_raref.rho*(2/(gamma+1)*(-a_r + (gamma-1)/2*(right.rhou/right.rho)));
 
 			double press, press_r;
-			press_r = (right.E + pow(right.rhou,2)/(right.rho*2))*(gamma-1);
-			press = press_r*pow((2/(gamma+1) - (gamma-1)/(a_l*(gamma+1))*(right.rhou/right.rho)),((2*gamma)/(gamma-1)));
+			TDstate press_calculation_state;
+			press_calculation_state.rho = right.rho;
+			press_calculation_state.rhou = right.rhou; // Order doesn't matter for directionality for this function
+			press_calculation_state.rhov = right_parallelvel*right.rho;
+			press_calculation_state.E = right.E;
+
+			press_r = compute_pressure_2D(press_calculation_state, gamma);
+			press = press_r*pow((2/(gamma+1) - (gamma-1)/(a_r*(gamma+1))*(right.rhou/right.rho)),((2*gamma)/(gamma-1)));
 
 			in_raref.E = (press/(gamma-1) - pow(in_raref.rhou,2)/(2*in_raref.rho));
-			return(in_raref);
+			return(in_raref);	
 		}
-		else if ((left_wavenumber == 4) && type.left == 2) { // left shock and x=0 to the right of everything - should never be accessed!
-			return(right);
-		}
-		else if (left_wavenumber == 5) { // x=0 is to the right of everything - should never be accessed!
-			return(right);
-		}
+//		else if ((left_wavenumber == 4) && type.left == 2) { // left shock and x=0 to the right of everything - should never be accessed!
+//			return(right);
+//		}
+//		else if (left_wavenumber == 5) { // x=0 is to the right of everything - should never be accessed!
+//			return(right);
+//		}
 		else {
 			std::cout << '\n' << '\n' << "ERROR: CANNOT FIND WAVE ON X = 0 IN EXACT_RIEMANN_SOLVER.CPP...EXITING" << '\n';
 		}
